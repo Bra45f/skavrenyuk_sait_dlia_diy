@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styleblog.css">
+    <script src="script.js"></script>
     <title>Document</title>
 </head>
 <body>
@@ -25,5 +26,26 @@
     <h2>Щаг два</h2>
     <p>срите</p>
     <h2>КОНЕЦ</h2>
+    <h2>Рейтинг</h2>
+    <div class="rating">
+      <input type="hidden" id="star1_hidden" value="1">
+      <img src="IMG-TEST/fi-rr-star.png" onmouseover="change(this.id)" id="star1" class="rating-star">
+      
+      <input type="hidden" id="star2_hidden" value="2">
+      <img src="IMG-TEST/fi-rr-star.png" onmouseover="change(this.id)" id="star2" class="rating-star">
+      
+      <input type="hidden" id="star3_hidden" value="3">
+      <img src="IMG-TEST/fi-rr-star.png" onmouseover="change(this.id)" id="star3" class="rating-star">
+      
+      <input type="hidden" id="star4_hidden" value="4">
+      <img src="IMG-TEST/fi-rr-star.png" onmouseover="change(this.id)" id="star4" class="rating-star">
+
+      <input type="hidden" id="star5_hidden" value="5">
+      <img src="IMG-TEST/fi-rr-star.png" onmouseover="change(this.id)" id="star5" class="rating-star">
+  </div>
+  
+  <input type="hidden" id="ratingValue" value="0">
+  <p>Средняя оценка: <span id="averageRating">0</span> ⭐</p>
+  <button onclick="saveRating()">Сохранить оценку</button>
 </body>
 </html>
