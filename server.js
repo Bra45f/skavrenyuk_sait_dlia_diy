@@ -43,7 +43,7 @@ db.serialize(() => {
     //База данных пользователей
  db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE
+    email TEXT UNIQUE,
     username TEXT UNIQUE,
     password TEXT
 )`);
@@ -61,7 +61,7 @@ app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
     db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, password], function(err) {
         if (err) return res.json({ success: false, message: 'Ошибка регистрации' });
-        console.log({ success: true, message: 'Регистрация успешна' });
+        res.json({ success: true, message: 'Регистрация успешна' });
     });
 });
 
@@ -72,7 +72,7 @@ app.post('/api/login', (req, res) => {
         if (err || !user) return res.json({ success: false, message: 'Неверные учетные данные' });
 
         req.session.user = user;
-        console.log({ success: true, message: 'Вход выполнен' });
+        res.json({ success: true, message: 'Вход выполнен' });
     });
 });
 
@@ -88,7 +88,7 @@ app.get('/api/session', (req, res) => {
 // Выход
 app.post('/api/logout', (req, res) => {
     req.session.destroy(() => {
-        console.log({ success: true, message: 'Выход выполнен' });
+        res.json({ success: true, message: 'Выход выполнен' });
     });
 });
 
@@ -99,7 +99,7 @@ app.post('/api/comments', (req, res) => {
     const { comment } = req.body;
     db.run('INSERT INTO comments (user_id, comment) VALUES (?, ?)', [req.session.user.id, comment], function(err) {
         if (err) return res.json({ success: false, message: 'Ошибка при добавлении комментария' });
-        console.log({ success: true, message: 'Комментарий добавлен' });
+        res.json({ success: true, message: 'Комментарий добавлен' });
     });
 });
 
