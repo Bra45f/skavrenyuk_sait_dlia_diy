@@ -1,11 +1,27 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
+const session = require('express-session');
+const path = require('path');
+
+
 
 const app = express();
 const port = 3000;
 
 app.use(express.static('public'));
+app.use(express.json()); 
+
+app.use(session({
+    secret: 'secret-key',
+    resave: false,
+    saveUninitialized: true
+}));
+
+app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public/register.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public/login.html')));
+app.get('/profile', (req, res) => res.sendFile(path.join(__dirname, 'public/profile.html')));
+app.get('/comments', (req, res) => res.sendFile(path.join(__dirname, 'public/blog.html')));
 
 // Создаем или подключаемся к БД
 const db = new sqlite3.Database('ratings.db', (err) => {
@@ -17,12 +33,82 @@ const db = new sqlite3.Database('ratings.db', (err) => {
 
 // Создаем таблицу при запуске сервера
 db.serialize(() => {
+    //База данных рейтинга 
  db.run(`
  CREATE TABLE IF NOT EXISTS ratings (
  id INTEGER PRIMARY KEY AUTOINCREMENT,
  rating INTEGER
  )
  `);
+    //База данных пользователей
+ db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE
+    username TEXT UNIQUE,
+    password TEXT
+)`);
+    //База данных коментариев
+db.run(`CREATE TABLE IF NOT EXISTS comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    comment TEXT,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+)`);
+});
+
+// Регистрация
+app.post('/api/register', (req, res) => {
+    const { username, password } = req.body;
+    db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, password], function(err) {
+        if (err) return res.json({ success: false, message: 'Ошибка регистрации' });
+        console.log({ success: true, message: 'Регистрация успешна' });
+    });
+});
+
+// Вход
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    db.get('SELECT id, username FROM users WHERE username = ? AND password = ?', [username, password], (err, user) => {
+        if (err || !user) return res.json({ success: false, message: 'Неверные учетные данные' });
+
+        req.session.user = user;
+        console.log({ success: true, message: 'Вход выполнен' });
+    });
+});
+
+// Проверка сессии
+app.get('/api/session', (req, res) => {
+    if (req.session.user) {
+        res.json({ loggedIn: true, user: req.session.user });
+    } else {
+        res.json({ loggedIn: false });
+    }
+});
+
+// Выход
+app.post('/api/logout', (req, res) => {
+    req.session.destroy(() => {
+        console.log({ success: true, message: 'Выход выполнен' });
+    });
+});
+
+// Добавление комментария
+app.post('/api/comments', (req, res) => {
+    if (!req.session.user) return res.json({ success: false, message: 'Необходимо войти в аккаунт' });
+
+    const { comment } = req.body;
+    db.run('INSERT INTO comments (user_id, comment) VALUES (?, ?)', [req.session.user.id, comment], function(err) {
+        if (err) return res.json({ success: false, message: 'Ошибка при добавлении комментария' });
+        console.log({ success: true, message: 'Комментарий добавлен' });
+    });
+});
+
+// Получение всех комментариев
+app.get('/api/comments', (req, res) => {
+    db.all('SELECT comments.comment, users.username FROM comments JOIN users ON comments.user_id = users.id', [], (err, rows) => {
+        if (err) return res.json({ success: false, message: 'Ошибка загрузки комментариев' });
+        res.json(rows);
+    });
 });
 
 app.use(bodyParser.json());

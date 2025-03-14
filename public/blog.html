@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styleblog.css">
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
+    <script src="comments.js" defer></script>
     <title>Document</title>
 </head>
 <body>
@@ -17,7 +18,7 @@
           <li><a href="index.html">главная</a></li>
           <li><a href="blog.html">блог</a></li>
           <li><a href="#">ass</a></li>
-          <li><a href="#">личный кабинет</a></li>
+          <li><a href="/profile">личный кабинет</a></li>
         </ul>
       </nav>
     <H1>Как срать</H1>
@@ -47,5 +48,10 @@
   <input type="hidden" id="ratingValue" value="0">
   <p>Средняя оценка: <span id="averageRating">0</span> ⭐</p>
   <button onclick="saveRating()">Сохранить оценку</button>
+
+  <h2>Комментарии</h2>
+  <textarea id="comment" placeholder="Оставьте комментарий"></textarea>
+  <button onclick="sendComment()">Отправить</button>
+  <div id="comments"></div>
 </body>
 </html>
