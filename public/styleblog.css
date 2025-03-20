@@ -56,3 +56,22 @@
       display: block;
     }
   }
+
+  h2{
+    margin: 5px;
+    word-wrap: break-word;
+  }
+
+  p{
+    margin: 5px;
+    word-wrap: break-word;
+  }
+
+  button{
+    margin: 5px;
+    
+  }
+
+  textarea{
+    margin: 5px;
+  }

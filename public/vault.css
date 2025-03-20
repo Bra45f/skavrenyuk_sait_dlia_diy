@@ -56,3 +56,35 @@
       display: block;
     }
   }
+
+input{
+  width: 500px;
+  height: 25px;
+  margin: 5px;
+  border-radius: 0px;
+}
+
+h2{
+  margin: 5px;
+}
+
+button{
+  width: 150px;
+  height: 20px;
+  margin: 5px;
+  background-color: rgb(74, 190, 74);
+  color: #000;
+}
+
+.logoutbtm{
+  width: 150px;
+  height: 20px;
+  margin: 5px;
+  background-color: rgb(190, 76, 74);
+  color: #000; 
+}
+
+p{
+  margin: 5px;
+}
+

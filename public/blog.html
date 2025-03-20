@@ -26,6 +26,7 @@
     <h2>Пункт 2</h2>
     <p>текст</p>
     <h2>заключение</h2>
+    <hr>
     <h2>Рейтинг</h2>
     <div class="rating">
       <input type="hidden" id="star1_hidden" value="1">
@@ -47,9 +48,9 @@
   <input type="hidden" id="ratingValue" value="0">
   <p>Средняя оценка: <span id="averageRating">0</span> ⭐</p>
   <button onclick="saveRating()">Сохранить оценку</button>
-
+<hr>
   <h2>Комментарии</h2>
-  <textarea id="comment" placeholder="Оставьте комментарий"></textarea>
+  <textarea id="comment" placeholder="Оставьте комментарий"></textarea><br>
   <button onclick="sendComment()">Отправить</button>
   <div id="comments"></div>
 </body>
