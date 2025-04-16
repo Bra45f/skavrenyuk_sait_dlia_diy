@@ -1,57 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styleblog.css">
-    <script src="script.js" defer></script>
-    <script src="comments.js" defer></script>
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>Просмотр блога</title>
+  <script src="script.js" defer></script>
+  <script src="blog.js" defer></script>
 </head>
 <body>
-    <!-- меню навигации -->
-    <nav>
-        <input type="checkbox" id="btn-menu" />
-        <label for="btn-menu"></label>
-        <ul class="list-menu">
-          <li><a href="index.html">Главная</a></li>
-          <li><a href="blog.html">Блог</a></li>
-          <li><a href="#">ЧАВо</a></li>
-          <li><a href="/profile">Личный кабинет</a></li>
-        </ul>
-      </nav>
-    <H1>Название</H1>
-    <h2>Пункт 1</h2>
-    <P>текст</P>
-    <h2>Пункт 2</h2>
-    <p>текст</p>
-    <h2>заключение</h2>
-    <hr>
-    <h2>Рейтинг</h2>
-    <div class="rating">
-      <input type="hidden" id="star1_hidden" value="1">
-      <img src="IMG-TEST/fi-rr-star.png" onmouseover="change(this.id)" id="star1" class="rating-star">
-      
-      <input type="hidden" id="star2_hidden" value="2">
-      <img src="IMG-TEST/fi-rr-star.png" onmouseover="change(this.id)" id="star2" class="rating-star">
-      
-      <input type="hidden" id="star3_hidden" value="3">
-      <img src="IMG-TEST/fi-rr-star.png" onmouseover="change(this.id)" id="star3" class="rating-star">
-      
-      <input type="hidden" id="star4_hidden" value="4">
-      <img src="IMG-TEST/fi-rr-star.png" onmouseover="change(this.id)" id="star4" class="rating-star">
-
-      <input type="hidden" id="star5_hidden" value="5">
-      <img src="IMG-TEST/fi-rr-star.png" onmouseover="change(this.id)" id="star5" class="rating-star">
-  </div>
-  
-  <input type="hidden" id="ratingValue" value="0">
-  <p>Средняя оценка: <span id="averageRating">0</span> ⭐</p>
-  <button onclick="saveRating()">Сохранить оценку</button>
-<hr>
-  <h2>Комментарии</h2>
-  <textarea id="comment" placeholder="Оставьте комментарий"></textarea><br>
-  <button onclick="sendComment()">Отправить</button>
-  <div id="comments"></div>
+  <div id="blog"></div>
 </body>
 </html>

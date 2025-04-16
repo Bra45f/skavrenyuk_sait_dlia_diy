@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Список блогов</title>
+  <script defer src="bloglist.js"></script>
+</head>
+<body>
+  <a href="index.html"><button>На главную</button></a>
+  <h1>Блоги</h1>
+  <div id="blog-list"></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+  const res = await fetch('/api/blogs');
+  const blogs = await res.json();
+  const container = document.getElementById('blog-list');
+
+  blogs.forEach(blog => {
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <h2>${blog.title}</h2>
+      <p><i>${blog.description}</i></p>
+      <a href="/blog.html?id=${blog.id}">Читать полностью</a>
+      <hr>
+    `;
+    container.appendChild(div);
+  });
+});
+  </script>
+</body>
+</html>
