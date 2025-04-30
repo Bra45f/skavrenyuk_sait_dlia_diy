@@ -34,7 +34,4 @@ async function loadBlog() {
 <textarea id="comment" placeholder="Оставьте комментарий"></textarea><br>
 <button onclick="sendComment()">Отправить</button>
 <div id="comments"></div>
-    `;
-  }
-
-  loadBlog();
+    `;}loadBlog();

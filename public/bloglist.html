@@ -3,29 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <title>Список блогов</title>
-  <script defer src="bloglist.js"></script>
+  <link rel="stylesheet" href="blstyle.css">
 </head>
 <body>
-  <a href="index.html"><button>На главную</button></a>
+  <nav>
+    <input type="checkbox" id="btn-menu" />
+    <label for="btn-menu"></label>
+    <ul class="list-menu">
+      <li><a href="index.html">Главная</a></li>
+      <li><a href="bloglist.html">Блоги</a></li>
+      <li><a href="#">ЧАВо</a></li>
+      <li><a href="/profile">Личный кабинет</a></li>
+      <li><a href="/admin">Админ-панель</a></li>
+    </ul>
+  </nav>
   <h1>Блоги</h1>
   <div id="blog-list"></div>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-  const res = await fetch('/api/blogs');
-  const blogs = await res.json();
-  const container = document.getElementById('blog-list');
-
-  blogs.forEach(blog => {
-    const div = document.createElement('div');
-    div.innerHTML = `
-      <h2>${blog.title}</h2>
-      <p><i>${blog.description}</i></p>
-      <a href="/blog.html?id=${blog.id}">Читать полностью</a>
-      <hr>
-    `;
-    container.appendChild(div);
-  });
-});
+      const res = await fetch('/api/blogs');
+      const blogs = await res.json();
+      const container = document.getElementById('blog-list');
+  
+      blogs.forEach(blog => {
+        const card = document.createElement('div');
+        card.className = 'blog-card'; // Добавляем класс для стилизации
+        card.innerHTML = `
+          <h2 class="blog-title">${blog.title}</h2>
+          <p class="blog-description"><i>${blog.description}</i></p>
+          <a class="blog-link" href="/blog.html?id=${blog.id}">Читать полностью</a>
+        `;
+        container.appendChild(card);
+      });
+    });
   </script>
 </body>
 </html>
