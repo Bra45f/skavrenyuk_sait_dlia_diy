@@ -28,7 +28,8 @@ async function loadBlog() {
 
 <input type="hidden" id="ratingValue" value="0">
 <p>Средняя оценка: <span id="averageRating">0</span>⭐</p>
-<button onclick="saveRating()">Сохранить оценку</button>
+<button id="ratingButton" onclick="saveRating()">Изменить</button>
+<button id="deleteRatingButton" onclick="deleteRating()" style="display: none;">Удалить</button>
 <hr>
 <h2>Комментарии</h2>
 <textarea id="comment" placeholder="Оставьте комментарий"></textarea><br>

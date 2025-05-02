@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     fetchAverageRating();
     loadComments();
+    loadUserRating();
 });
 
 // Проверка логина
@@ -115,3 +116,53 @@ async function saveRating() {
         alert('Ошибка при сохранении рейтинга.');
     }
 }
+
+// Функция изменения оценки
+async function loadUserRating() {
+    const res = await fetch(`/api/blogs/${blogId}/user_rating`);
+    const data = await res.json();
+
+    if (data.rating !== null) {
+        document.getElementById('ratingValue').value = data.rating;
+
+        // Обновляем отображение звёзд
+        const stars = document.getElementsByClassName('rating-star');
+        for (let i = 0; i < stars.length; i++) {
+            if (i < data.rating) {
+                stars[i].src = 'IMG-TEST/fi-sr-star2.png';
+            } else {
+                stars[i].src = 'IMG-TEST/fi-rr-star.png';
+            }
+        }
+
+        document.getElementById('ratingButton').innerText = 'Изменить оценку';
+        document.getElementById('deleteRatingButton').style.display = 'inline-block';
+    } else {
+        document.getElementById('ratingButton').innerText = 'Оценить';
+        document.getElementById('deleteRatingButton').style.display = 'none';
+    }
+}
+
+// удаление оценки
+async function deleteRating() {
+    const res = await fetch(`/api/session`);
+    const session = await res.json();
+    if (!session.loggedIn) {
+        alert('Войдите, чтобы удалить оценку');
+        return;
+    }
+  
+    try {
+        await fetch(`/api/blogs/${blogId}/ratings`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+  
+        alert('Оценка удалена');
+        document.getElementById('ratingValue').value = '';
+        fetchAverageRating();
+        loadUserRating();
+    } catch (error) {
+        console.error('Ошибка при удалении оценки:', error);
+    }
+  }

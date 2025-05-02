@@ -63,30 +63,50 @@
   word-wrap: break-word;
 
 }
- h1{
+
+  .main{
+    margin-left: 10px;
+  margin-top: 10px;
+  }
+
+ .pochemy{
   margin-left: 10px;
+  
  }
 
  h2{
   margin-left: 10px;
  }
 
+ .new_blogs{
+  margin-left: 10px;
+
+ }
+
  .block1{
   width: 80%;
   float: left;
+  margin-bottom: 20px;
  }
  .block2{
   width: 20%;
   float: right;
-  
+  margin-bottom: 20px;
 }
+
+.preomushestva{
+  margin: 5px;
+}
+
 .block3{
- width: 50%;
+ width: 25%;
  float: left;
+ margin-bottom: 5px;
 }
 .block3-1{
-  width: 50%;
+  width: 25%;
   float: right;
+  margin-bottom: 5px;
  }
 .img1{
   width: 100%;
@@ -127,3 +147,46 @@
       
     }
   }
+
+  /* Стили для контейнера с карточками */
+#blog-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Стили для карточки блога */
+.blog-card {
+  background: #fff; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.blog-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.blog-title {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.blog-description {
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.blog-link {
+  display: inline-block;
+  color: #0066cc;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.blog-link:hover {
+  text-decoration: underline;
+}

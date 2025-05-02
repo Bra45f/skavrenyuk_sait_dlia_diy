@@ -155,17 +155,17 @@ app.post('/api/ratings', (req, res) => {
   );
 });
 
-app.get('/api/average_rating', (req, res) => {
-    db.get('SELECT AVG(rating) AS average_rating FROM ratings', (err, row) => {
-        if (err) {
-            console.error('Ошибка при получении среднего рейтинга:', err);
-            return res.status(500).json({ success: false, error: err.message });
-        }
-        // Если рейтинг null (когда нет данных), устанавливаем 0.0
-        const averageRating = row && row.average_rating ? parseFloat(row.average_rating).toFixed(1) : "0.0";
-        res.json({ average_rating: parseFloat(averageRating) });
-    });
-});
+// app.get('/api/average_rating', (req, res) => {
+//     db.get('SELECT AVG(rating) AS average_rating FROM ratings', (err, row) => {
+//         if (err) {
+//             console.error('Ошибка при получении среднего рейтинга:', err);
+//             return res.status(500).json({ success: false, error: err.message });
+//         }
+//         // Если рейтинг null (когда нет данных), устанавливаем 0.0
+//         const averageRating = row && row.average_rating ? parseFloat(row.average_rating).toFixed(1) : "0.0";
+//         res.json({ average_rating: parseFloat(averageRating) });
+//     });
+// });
 
 app.get('/api/blogs', (req, res) => {
   db.all('SELECT * FROM blogs', (err, rows) => {
@@ -196,7 +196,7 @@ app.post('/api/blogs/:id/ratings', (req, res) => {
 
   const blogId = req.params.id;
   const userId = req.session.userId;
-  const rating = req.body.rating;
+  const rating = parseInt(req.body.rating);
 
   db.run('INSERT INTO ratings (blog_id, user_id, rating) VALUES (?, ?, ?) ON CONFLICT(blog_id, user_id) DO UPDATE SET rating = excluded.rating', [blogId, userId, rating], function(err) {
       if (err) {
@@ -220,6 +220,39 @@ app.get('/api/blogs/:id/average_rating', (req, res) => {
   });
 });
 
+// Функция изменения оценки
+app.get('/api/blogs/:id/user_rating', (req, res) => {
+  if (!req.session.userId) {
+      return res.json({ rating: null });
+  }
+
+  const blogId = req.params.id;
+  const userId = req.session.userId;
+
+  
+db.get('SELECT rating FROM ratings WHERE blog_id = ? AND user_id = ?', [blogId, userId], (err, row) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ rating: row ? row.rating : null });
+  });
+});
+
+// удаление оценки
+
+app.delete('/api/blogs/:id/ratings', (req, res) => {
+  if (!req.session.userId) {
+      return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const blogId = req.params.id;
+  const userId = req.session.userId;
+
+  db.run('DELETE FROM ratings WHERE blog_id = ? AND user_id = ?', [blogId, userId], function(err) {
+      if (err) {
+          return res.status(500).json({ error: err.message });
+      }
+      res.json({ success: true });
+  });
+});
 
 // Добавление комментария
 app.post('/api/blogs/:id/comments', (req, res) => {
