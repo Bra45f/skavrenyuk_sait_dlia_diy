@@ -69,12 +69,27 @@ async function loadComments() {
         const res = await fetch(`/api/blogs/${blogId}/comments`);
         const comments = await res.json();
         const container = document.getElementById('comments');
-        container.innerHTML = comments.map(c => `<p><b>${c.username}:</b> ${c.text}</p>`).join('');
+
+        // Очистка контейнера перед вставкой новых комментариев
+        container.innerHTML = '';
+
+        comments.forEach(c => {
+            const p = document.createElement('p');
+
+            const b = document.createElement('b');
+            b.textContent = `${c.username}: `;
+            p.appendChild(b);
+
+            const text = document.createTextNode(c.text);
+            p.appendChild(text);
+
+            container.appendChild(p);
+        });
+
     } catch (error) {
         console.error('Ошибка при загрузке комментариев:', error);
     }
 }
-
 // Получение среднего рейтинга
 async function fetchAverageRating() {
     try {

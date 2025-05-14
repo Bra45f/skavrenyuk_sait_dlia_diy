@@ -5,9 +5,13 @@ const session = require('express-session');
 const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const app = express();
 const port = 3000;
+
+
 
 
 app.set('view engine', 'ejs');
@@ -16,61 +20,46 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(express.json()); 
-
-app.use(session({
-    secret: 'secret-key',
-    resave: false,
-    saveUninitialized: true
-}));
+app.use(session({ secret: 'adminsecret secret-key', resave: false, saveUninitialized: true }));
 
 // Указываем Express, где искать статические файлы
 app.use(express.static(path.join(__dirname, 'views')));
 
-app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public/register.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public/login.html')));
-app.get('/profile', (req, res) => res.sendFile(path.join(__dirname, 'public/profile.html')));
-app.get('/comments', (req, res) => res.sendFile(path.join(__dirname, 'public/bloglist.html')));
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public/admin.html')));
-
-
-
-// Создаем или подключаемся к БД
-const db = new sqlite3.Database('ratings.db', (err) => {
- if (err) {
- console.error('Ошибка при подключении к БД:', err);
- }
- console.log('Подключено к БД');
+['register', 'login', 'profile', 'comments', 'admin'].forEach(route => {
+  app.get(`/${route}`, (req, res) => res.sendFile(path.join(__dirname, `public/${route}.html`)));
 });
 
-// Создаем таблицу при запуске сервера
-db.serialize(() => {
+// Подключаем БД
+const db = new sqlite3.Database('ratings.db', (err) => {
+  if (err) return console.error('Ошибка при подключении к БД:', err.message);
+  console.log('Подключено к БД ratings.db');
+});
 
-    //База данных пользователей
- db.run(`CREATE TABLE IF NOT EXISTS users (
+// Создаем БД
+const tables = [
+  `CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE,
     username TEXT UNIQUE,
     password TEXT
-)`);
-
-db.run(`CREATE TABLE IF NOT EXISTS blogs (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  title TEXT,
-  description TEXT,
-  content TEXT,
-  created_at TEXT
-)`);
-
-db.run(`CREATE TABLE IF NOT EXISTS comments (
+  )`,
+  `CREATE TABLE IF NOT EXISTS blogs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    description TEXT,
+    content TEXT,
+    author TEXT,
+    created_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS comments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     blog_id INTEGER,
     user_id INTEGER,
     text TEXT NOT NULL,
     FOREIGN KEY (blog_id) REFERENCES blogs(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
-);`);
-
-db.run(`CREATE TABLE IF NOT EXISTS ratings (
+  )`,
+  `CREATE TABLE IF NOT EXISTS ratings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     blog_id INTEGER,
     user_id INTEGER,
@@ -78,11 +67,144 @@ db.run(`CREATE TABLE IF NOT EXISTS ratings (
     UNIQUE(blog_id, user_id),
     FOREIGN KEY (blog_id) REFERENCES blogs(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
-);`);
+  )`,
+  `CREATE TABLE IF NOT EXISTS admins (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT,
+    username TEXT UNIQUE,
+    password TEXT,
+    secret_key TEXT
+  )`
+];
+
+db.serialize(() => {
+  tables.forEach(sql => db.run(sql, err => {
+    if (err) console.error('Ошибка создания таблицы:', err.message);
+  }));
 });
 
-  
+const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'nikitaskavrenuk6@gmail.com',
+          pass: 'mprv wyfm ejpx jspv'
+        }
+      });
 
+
+
+
+// Маршрут для регистрации администратора
+app.post('/api/admin/register', (req, res) => {
+    const { email, username, password } = req.body;
+    const secretKey = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const insert = `INSERT INTO admins (email, username, password, secret_key) VALUES (?, ?, ?, ?)`;
+    db.run(insert, [email, username, password, secretKey], function (err) {
+      if (err) {
+        console.error('Ошибка при регистрации администратора:', err.message);
+        return res.status(500).json({ message: 'Ошибка регистрации администратора' });
+      }
+
+      // Создание текстового файла с данными
+      const fileContent = `Ваш аккаунт администратора:\n\nEmail: ${email}\nUsername: ${username}\nPassword: ${password}\nSecret Key: ${secretKey}`;
+      const filePath = path.join(__dirname, `../admin_${username}_info.txt`);
+      fs.writeFileSync(filePath, fileContent);
+
+      // Настройка письма
+      const mailOptions = {
+        from: 'nikitaskavrenuk6@gmail.com',
+        to: email,
+        subject: 'Данные вашего администратора',
+        text: 'Во вложении находятся данные вашего администратора.',
+        attachments: [
+          {
+            filename: `admin_${username}_info.txt`,
+            path: filePath
+          }
+        ]
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        fs.unlink(filePath, () => {}); // Удаление файла после отправки
+
+        if (error) {
+          console.error('Ошибка при отправке email:', error);
+          return res.status(500).json({ message: 'Ошибка отправки письма' });
+        }
+
+        res.status(200).json({ message: 'Администратор зарегистрирован. Данные отправлены на email.' });
+      });
+    });
+ });
+
+// Маршрут для входа администратора
+app.post('/api/admin/login', (req, res) => {
+  const { username, password, secret_key } = req.body;
+  db.get(`SELECT * FROM admins WHERE username = ? AND password = ? AND secret_key = ?`,
+    [username, password, secret_key],
+    (err, row) => {
+      if (err || !row) return res.status(401).json({ message: 'Неверные данные' });
+      req.session.admin = { id: row.id, username: row.username };
+      res.json({ message: 'Успешный вход' });
+    });
+});
+
+// Проверка сессии
+app.get('/api/admin/session', (req, res) => {
+  if (req.session.admin) {
+    res.json({ loggedIn: true, username: req.session.admin.username });
+  } else {
+    res.json({ loggedIn: false });
+  }
+});
+
+// Выход из аккаунта
+app.post('/api/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.json({ success: true });
+  });
+});
+
+// Получение админитраторов
+app.get('/api/admin/list', (req, res) => {
+  db.all('SELECT id, username, email FROM admins', (err, rows) => {
+    if (err) return res.status(500).json({ message: 'Ошибка при получении админов' });
+    res.json(rows);
+  });
+});
+
+// Удаление админа
+app.delete('/api/admin/:id', (req, res) => {
+  const id = req.params.id;
+
+  // Сначала получим email удаляемого админа
+  db.get('SELECT email, username FROM admins WHERE id = ?', [id], (err, row) => {
+    if (err || !row) return res.status(500).json({ message: 'Ошибка при получении администратора' });
+
+    const { email, username } = row;
+
+    // Удалим администратора
+    db.run('DELETE FROM admins WHERE id = ?', [id], function (err) {
+      if (err) return res.status(500).json({ message: 'Ошибка при удалении администратора' });
+
+        const mailOptions = {
+        from: 'nikitaskavrenuk6@gmail.com',
+        to: email,
+        subject: 'Удаление учетной записи администратора',
+        text: `Здравствуйте, ${username}!\n\nВы больше не являетесь администратором на нашем сайте.\n\nС уважением,\nАдминистрация сайта`
+      };
+
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.error('Ошибка при отправке письма:', err);
+        }
+      });
+
+      res.json({ message: 'Администратор удалён и уведомлён по почте' });
+    });
+  });
+});
 // Регистрация
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
@@ -128,7 +250,7 @@ app.post('/api/comments', (req, res) => {
     [blogId, userId, comment, timestamp],
     function (err) {
       if (err) return res.status(500).send('Ошибка при добавлении комментария');
-      res.redirect('/blog/' + blogId);
+      res.json('/blog/' + blogId);
     }
   );
 });
@@ -150,7 +272,7 @@ app.post('/api/ratings', (req, res) => {
 [blogId, userId, rating],
     function (err) {
       if (err) return res.status(500).send('Ошибка при добавлении рейтинга');
-      res.redirect('/blog/' + blogId);
+      res.json('/blog/' + blogId);
     }
   );
 });
@@ -176,14 +298,19 @@ app.get('/api/blogs', (req, res) => {
 
 // Добавление блога
 app.post('/api/blogs', (req, res) => {
-  const { title, description, content } = req.body;
-  const createdAt = new Date().toISOString();
+  if (!req.session.admin) return res.status(401).json({ message: 'Не авторизован' });
 
-  db.run('INSERT INTO blogs (title, description, content, created_at) VALUES (?, ?, ?, ?)',
-    [title, description, content, createdAt],
+  const { title, description, content } = req.body;
+  const author = req.session.admin.username;
+  const createdAt = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+
+  db.run(
+    'INSERT INTO blogs (title, description, content, author, created_at) VALUES (?, ?, ?, ?, ?)',
+    [title, description, content, author, createdAt],
     function (err) {
-      if (err) return res.status(500).send('Ошибка при добавлении блога');
-      res.redirect('/bloglist');
+      if (err) return res.status(500).json({ message: 'Ошибка при добавлении блога' });
+      res.json({ success: true, id: this.lastID });
     }
   );
 });
@@ -325,4 +452,3 @@ app.use(bodyParser.json());
 app.listen(port, () => {
  console.log(`Сервер запущен на http://localhost:${port}`);
 });
-

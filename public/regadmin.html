@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация админа</title>
+</head>
+<body>
+  <h1>Регистрация нового администратора</h1>
+    <form id="registerForm">
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="text" name="username" placeholder="Логин" required />
+        <input type="password" name="password" placeholder="Пароль" required />
+        <button type="submit">Зарегистрироваться</button>
+      </form>
+  <h1>Список зарегистрированных администраторов</h1>
+  <ul id="admin-list"></ul>
+
+      <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const response = await fetch('/api/admin/register', {
+            method: 'POST',
+            body: new URLSearchParams(formData)
+          });
+          const result = await response.json();
+          alert(result.message);
+        });
+
+        async function loadAdmins() {
+      const res = await fetch('/api/admin/list');
+      const admins = await res.json();
+      const list = document.getElementById('admin-list');
+      list.innerHTML = '';
+      admins.forEach(admin => {
+        const li = document.createElement('li');
+        li.textContent = `Логин: ${admin.username}, Email: ${admin.email}` ;
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Удалить';
+        delBtn.onclick = async () => {
+          if (confirm(`Удалить администратора ${admin.username}?`)) {
+            await fetch(`/api/admin/${admin.id}`, { method: 'DELETE' });
+            loadAdmins();
+          }
+        };
+        li.appendChild(delBtn);
+        list.appendChild(li);
+      });
+    }
+  
+    window.addEventListener('DOMContentLoaded', loadAdmins);
+      </script>
+      
+</body>
+</html>

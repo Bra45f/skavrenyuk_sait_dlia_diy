@@ -59,19 +59,20 @@
   /* дизайн текста */
 .text{
   font-size: 20px;
-  margin-left: 10px;
+  margin-left: 30px;
   word-wrap: break-word;
 
 }
 
   .main{
-    margin-left: 10px;
+  margin-left: 30px;
   margin-top: 10px;
   }
 
  .pochemy{
-  margin-left: 10px;
-  
+  margin-left: 30px;
+  margin-top: 250px;
+  margin-bottom: 15px;
  }
 
  h2{
@@ -79,7 +80,8 @@
  }
 
  .new_blogs{
-  margin-left: 10px;
+  margin-top: 40px;
+  margin-left: 30px;
 
  }
 
@@ -99,14 +101,43 @@
 }
 
 .block3{
- width: 25%;
+  margin: 15px;
  float: left;
- margin-bottom: 5px;
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(307px, 1fr));
+ background: #fff; 
+ box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+ padding: 20px;
+ transition: transform 0.3s ease, box-shadow 0.3s ease;
+ 
 }
 .block3-1{
-  width: 25%;
   float: right;
-  margin-bottom: 5px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  background: #fff; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+ }
+ 
+ .h2text {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
+ }
+
+.text-block{
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+ .imgeeeee{
+  display: block;
+    margin-left: auto;
+    margin-right: auto;
+  width: 150px;
  }
 .img1{
   width: 100%;
@@ -136,7 +167,14 @@
       width: 100%;
     }
     .block3{
-      width: 100%;
+      margin: 15px;
+      float: left;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      background: #fff; 
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
      }
      .block3-1{
       width: 100%;
@@ -146,7 +184,29 @@
    height: 100%;
       
     }
+
+    .imgeeeee{
+      width: 30%;
+      float: left;
+     }
+
+     .h2text {
+      width: 100%;
+      margin-top: 30px;
+      float: right;
+     }
+
+     .text-block{
+      width: 100%;
+      margin-top: 30px;
+      float: right;
+
+    }
   }
+
+.text-block {
+  margin-top: 10px;
+}
 
   /* Стили для контейнера с карточками */
 #blog-list {
@@ -189,4 +249,87 @@
 
 .blog-link:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+
+  #blog-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+  }
+  
+}
+
+.text-chkbox {
+  display: block;
+  position: relative;
+  .label-text {
+      cursor: pointer;
+      margin: 10px;
+      margin-left: 30px;
+      font-size: 22px;
+  }
+  .hidden-text {
+      display: block;
+      overflow: hidden;
+      max-height: 0px;
+      opacity: 0;
+      transition: opacity .3s 0s;
+      margin-left: 30px;
+      margin-bottom: 10px;
+      font-size: 18px;
+  }
+  input {
+      position: absolute;
+      width: 1px; height: 1px;
+      top: -20px; left: -20px;
+  }
+  input:checked + .hidden-text {
+      max-height: none;
+      opacity: 1;
+  }    
+}
+
+.hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 15px;
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 21px;
+}
+
+input:focus + .hint{
+  display: block;
+}
+
+.mystyle {
+  color: #000;
+  display: block;
+  width: 100%;
+  padding: 25px;
+  font-size: 25px;
+}
+
+footer{
+  padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  
+}
+
+.footer-menu {
+  display: flex;
+    list-style: none;
+    color: #fff;
+    padding: 5px 15px;
+}
+
+.footer-menu > li > a{
+  color: #fff;
+  display: block;
+  padding: 5px 15px;
 }

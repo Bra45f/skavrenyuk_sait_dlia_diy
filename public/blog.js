@@ -2,9 +2,16 @@ async function loadBlog() {
     const id = new URLSearchParams(window.location.search).get('id');
     const res = await fetch(`/api/blogs/${id}`);
     const blog = await res.json();
+    const date = new Date(blog.created_at);
+        const formattedDate = date.toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
 
     document.getElementById('blog').innerHTML = `
     <a href="bloglist.html"><button>Назад</button></a>
+    <p><b>Дата создания:</b> ${formattedDate}</p>
       <h1>${blog.title}</h1>
       <p><i>${blog.description}</i></p>
       <div>${blog.content}</div>

@@ -1,3 +1,27 @@
+document.addEventListener('DOMContentLoaded', async () => {
+  const res = await fetch('/api/admin/session');
+  const data = await res.json();
+
+  if (!data.loggedIn) {
+      window.location.href = 'loginadmin.html';
+  }
+
+  document.getElementById('welcomeMessage').innerText = `Добро пожаловать, ${data.username}!`;
+  document.getElementById('logoutButton').style.display = 'inline-block';
+  document.getElementById('addBlogForm').style.display = 'block';
+
+  loadBlogs();
+});
+
+// Выход из аккаунта
+async function logout() {
+  const res = await fetch('/api/logout', { method: 'POST' });
+  const data = await res.json();
+  if (data.success) {
+      window.location.href = 'loginadmin.html';
+  }
+}
+
 let editingId = null;
 
     async function fetchBlogs() {
@@ -8,13 +32,25 @@ let editingId = null;
 
       blogs.forEach(blog => {
         const div = document.createElement('div');
+        const date = new Date(blog.created_at);
+        const formattedDate = date.toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+
         div.className = 'blog-card';
         div.innerHTML = `
-          <h3>${blog.title}</h3>
-          <p><b>Описание:</b> ${blog.description || ''}</p>
-          <button onclick="openBlog(${blog.id})">Открыть</button>
-          <button onclick="openEdit(${blog.id}, \`${blog.title}\`, \`${blog.description || ''}\`, \`${blog.content.replace(/`/g, '\\`')}\`)">Изменить</button>
-          <button onclick="deleteBlog(${blog.id})">Удалить</button>
+        <p><b>Дата создания:</b> ${formattedDate}</p>
+          <h3 style="color: #333;
+    margin-top: 0;
+    margin-bottom: 10px;">${blog.title}</h3>
+          <p style="color: #666;
+    margin-bottom: 15px;"><b>Описание:</b> ${blog.description || ''}</p>
+    <p><b>Автор:</b> ${blog.author || 'неизвестен'}</p>
+          <button class="admin-btn open-btn" onclick="openBlog(${blog.id})">Открыть</button>
+          <button class="admin-btn open-btn" onclick="openEdit(${blog.id}, \`${blog.title}\`, \`${blog.description || ''}\`, \`${blog.content.replace(/`/g, '\\`')}\`)">Изменить</button>
+          <button class="admin-btn open-btn" onclick="deleteBlog(${blog.id})">Удалить</button>
         `;
         container.appendChild(div);
       });
@@ -78,7 +114,7 @@ let editingId = null;
   }
 }
     function openBlog(id) {
-  window.open(`/blog.html?id=${id}`, '_blank');
+  window.open(`/blogadmin.html?id=${id}`, '_blank');
 }
 
     fetchBlogs();
