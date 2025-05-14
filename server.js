@@ -11,10 +11,6 @@ const crypto = require('crypto');
 const app = express();
 const port = 3000;
 
-
-
-
-
 app.set('view engine', 'ejs');
 app.use(cors());
 app.use(bodyParser.json());
